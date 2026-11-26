@@ -8,16 +8,16 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Outils Python préinstallés à jour
-RUN pip install --no-cache-dir -r requirements.txt && \
-    pip uninstall -y setuptools wheel pip
+
 
 RUN useradd -m appuser
 
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip uninstall -y setuptools wheel pip
 
 COPY --chown=appuser:appuser main.py .
 
