@@ -11,6 +11,10 @@ RUN apt-get update && \
 # Outils Python préinstallés à jour
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
+RUN pip uninstall -y setuptools && \
+    find / -xdev \( -name "setuptools-*.whl" -o -name "setuptools-*.dist-info" -o -name "setuptools-*.egg-info" \) \
+         -print -exec rm -rf {} +
+
 RUN useradd -m appuser
 
 WORKDIR /app
