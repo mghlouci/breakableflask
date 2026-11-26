@@ -9,9 +9,8 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Outils Python préinstallés à jour
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
-
-RUN pip uninstall -y setuptools wheel pip
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip uninstall -y setuptools wheel pip
 
 RUN useradd -m appuser
 
