@@ -1,30 +1,31 @@
-FROM python:3.13.8-slim-trixie
+FROM python:3.13-slim-trixie
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-WORKDIR /app
-
+# Correctifs de sécurité des paquets système, sans rien installer de plus
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        gcc \
-        libpq-dev \
-        curl && \
+    apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Outils Python préinstallés à jour
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 RUN useradd -m appuser
 
-# Dépendances installées en root, avant le code (meilleur cache)
+WORKDIR /app
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --chown=appuser:appuser . /app
+COPY --chown=appuser:appuser main.py .
 
 USER appuser
 
 EXPOSE 4000
 
+# Healthcheck en Python : pas besoin d'installer curl
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:4000/ || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:4000/')" || exit 1
 
 CMD ["python", "main.py"]
